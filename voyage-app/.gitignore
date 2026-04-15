@@ -1,0 +1,219 @@
+# ──────────────────────────────────────────────────────────────────
+# VAR · voyage-app .gitignore
+# Protects secrets first, then build artifacts, then tooling junk.
+# ──────────────────────────────────────────────────────────────────
+
+# ══════════════════════════════════════════════════════════════════
+# SECRETS — NEVER COMMIT ANY OF THESE
+# ══════════════════════════════════════════════════════════════════
+
+# Environment files (local, dev, staging, prod, test — all variants)
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+
+# Common secret file names
+secrets.json
+secrets.yml
+secrets.yaml
+credentials.json
+credentials.yml
+credentials.yaml
+service-account.json
+service-account*.json
+gcp-credentials*.json
+firebase-adminsdk*.json
+aws-credentials
+aws-credentials.*
+
+# Private keys / certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+*.p8
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.ppk
+
+# Cloud provider config
+.aws/
+.gcp/
+.azure/
+.vercel
+.netlify
+
+# Supabase local
+supabase/.temp/
+supabase/.branches/
+
+# ══════════════════════════════════════════════════════════════════
+# DEPENDENCIES
+# ══════════════════════════════════════════════════════════════════
+
+node_modules/
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+jspm_packages/
+bower_components/
+
+# ══════════════════════════════════════════════════════════════════
+# BUILD OUTPUT & CACHES
+# ══════════════════════════════════════════════════════════════════
+
+# Next.js
+.next/
+out/
+/build
+next-env.d.ts.bak
+
+# Turbopack / SWC
+.turbo/
+.swc/
+
+# TypeScript
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# PostCSS / Tailwind
+.postcssrc.json.cache
+.cache/
+
+# Webpack / Rollup / Vite (if ever added)
+.webpack/
+.rollup.cache/
+.vite/
+
+# ══════════════════════════════════════════════════════════════════
+# TESTING & COVERAGE
+# ══════════════════════════════════════════════════════════════════
+
+coverage/
+.nyc_output/
+*.lcov
+playwright-report/
+playwright/.cache/
+test-results/
+
+# ══════════════════════════════════════════════════════════════════
+# LOGS & DEBUG
+# ══════════════════════════════════════════════════════════════════
+
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Diagnostic reports
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# ══════════════════════════════════════════════════════════════════
+# EDITOR / IDE
+# ══════════════════════════════════════════════════════════════════
+
+# VS Code
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+.history/
+
+# JetBrains (WebStorm, IntelliJ)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Emacs
+*.swp
+*.swo
+*.swn
+*~
+.\#*
+\#*\#
+
+# Cursor / Windsurf / Claude Code
+.cursor/
+.windsurf/
+.claude/local/
+
+# ══════════════════════════════════════════════════════════════════
+# OS
+# ══════════════════════════════════════════════════════════════════
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.nfs*
+
+# ══════════════════════════════════════════════════════════════════
+# MISC
+# ══════════════════════════════════════════════════════════════════
+
+# Archives / temp
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.bak
+*.tmp
+tmp/
+temp/
+
+# Local notes / scratch
+TODO.local.md
+NOTES.local.md
+scratch/
+playground/
+
+# Large assets you forgot to remove
+*.mp4
+*.mov
+*.avi
+!public/**/*.mp4

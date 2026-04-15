@@ -1,0 +1,39 @@
+{
+  "name": "whartonhackathon",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Travel review globe (M1) + Rome map itinerary (M2)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "framer-motion": "^12.38.0",
+    "mapbox-gl": "^3.21.0",
+    "next": "^16.2.3",
+    "openai": "^4.56.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "react-globe.gl": "^2.37.1",
+    "three": "^0.183.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/mapbox-gl": "^3.4.1",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "autoprefixer": "^10.5.0",
+    "eslint": "^9.39.4",
+    "eslint-config-next": "^16.2.3",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^6.0.2"
+  }
+}

@@ -1,0 +1,180 @@
+# ──────────────────────────────────────────────────────────────────
+# VAR · repo-root .gitignore
+#
+# This is a defense-in-depth layer above voyage-app/.gitignore.
+# If you ever `git init` at this directory, both backend/ and
+# voyage-app/ will inherit these rules.
+# ──────────────────────────────────────────────────────────────────
+
+# ══════════════════════════════════════════════════════════════════
+# SECRETS — NEVER COMMIT ANY OF THESE
+# ══════════════════════════════════════════════════════════════════
+
+# Environment files (every variant, every depth)
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.template
+!**/.env.example
+!**/.env.*.example
+!**/.env.sample
+!**/.env.template
+
+# Common secret file names (any depth)
+**/secrets.json
+**/secrets.yml
+**/secrets.yaml
+**/credentials.json
+**/credentials.yml
+**/credentials.yaml
+**/service-account*.json
+**/gcp-credentials*.json
+**/firebase-adminsdk*.json
+**/aws-credentials
+**/aws-credentials.*
+**/*.env.backup
+
+# Private keys & certificates
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+*.p12
+*.p8
+*.jks
+*.keystore
+id_rsa
+id_rsa.*
+id_ed25519
+id_ed25519.*
+*.ppk
+
+# Cloud / deploy
+.aws/
+.gcp/
+.azure/
+.vercel
+.netlify
+
+# API key files some tools drop
+.openai
+.openai-key
+openai-key.txt
+anthropic-key.txt
+supabase-key.txt
+
+# ══════════════════════════════════════════════════════════════════
+# NODE / NEXT.JS (in case repo root is initialized)
+# ══════════════════════════════════════════════════════════════════
+
+node_modules/
+**/node_modules/
+.next/
+**/.next/
+out/
+**/out/
+.turbo/
+**/.turbo/
+*.tsbuildinfo
+**/*.tsbuildinfo
+.npm-cache/
+**/.npm-cache/
+
+# ══════════════════════════════════════════════════════════════════
+# PYTHON (for build_report.py and any sibling scripts)
+# ══════════════════════════════════════════════════════════════════
+
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.pyre/
+
+# ══════════════════════════════════════════════════════════════════
+# BUILD / LOG / TMP
+# ══════════════════════════════════════════════════════════════════
+
+dist/
+build/
+coverage/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# ══════════════════════════════════════════════════════════════════
+# EDITOR / IDE
+# ══════════════════════════════════════════════════════════════════
+
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.iml
+.history/
+.cursor/
+.windsurf/
+.claude/local/
+.claude/settings.local.json
+**/.claude/settings.local.json
+*.swp
+*.swo
+*~
+
+# ══════════════════════════════════════════════════════════════════
+# OS
+# ══════════════════════════════════════════════════════════════════
+
+# macOS
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+.AppleDouble
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.fuse_hidden*
+.nfs*
+
+# ══════════════════════════════════════════════════════════════════
+# MISC
+# ══════════════════════════════════════════════════════════════════
+
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.7z
+*.rar
+*.bak
+*.tmp
+tmp/
+temp/
+scratch/
+
+# Local notes
+TODO.local.md
+NOTES.local.md
