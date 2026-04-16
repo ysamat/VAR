@@ -374,7 +374,7 @@ export function TripSummaryCard({
             </Link>
           </div>
         ) : (
-          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="mt-6 grid gap-3 sm:grid-cols-4">
             <button
               type="button"
               onClick={onReplay}
@@ -396,6 +396,12 @@ export function TripSummaryCard({
             >
               Reset to demo
             </button>
+            <Link
+              href="/admin"
+              className="rounded-xl border border-brand-yellow/30 bg-brand-dark-card px-4 py-3 text-center text-sm font-medium text-brand-yellow transition hover:bg-brand-dark"
+            >
+              Dashboard
+            </Link>
           </div>
         )}
       </div>
