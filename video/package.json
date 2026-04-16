@@ -1,0 +1,25 @@
+{
+  "name": "var-demo-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Remotion project — 2-3 min demo video for the VAR app",
+  "scripts": {
+    "start": "remotion studio src/Root.tsx",
+    "build": "remotion render src/Root.tsx VarDemo out/var-demo.mp4",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.0",
+    "@remotion/cli": "^4.0.0",
+    "@remotion/google-fonts": "^4.0.0",
+    "@remotion/renderer": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "typescript": "^5.5.0"
+  }
+}
