@@ -1,6 +1,6 @@
 # VAR — Voyage Adaptive Reviews
 **Ask what matters. Ask it once. Make it feel like the end of the trip.**
-Link: [expedia-var.vercel.app](expedia-var.vercel.app)
+Link: [expedia-var.vercel.app](https://expedia-var.vercel.app/)
 
 VAR is a working Next.js + Supabase + OpenAI prototype built for the **2026 Wharton AI & Analytics Hack-AI-Thon** (presented by Expedia). Instead of forcing travelers through a static post-trip review form, VAR turns the review into the closing beat of the trip: a cinematic JFK → destination → property flight, two AI-generated questions grounded in that property's *own* review history, and a one-click AI-synthesized review (title + body + per-category ratings) at the end.
 
