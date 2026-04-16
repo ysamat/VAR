@@ -64,6 +64,15 @@ async function submitAIReviews(
             gap_question: d.meta!.gap_question,
             verification_question: d.meta!.verification_question,
             verification_type: d.meta!.verification_type,
+            target_gap: d.meta!.target_gap,
+            gap_priority: d.meta!.gap_priority,
+            gap_description: d.meta!.gap_description,
+            missing_info_areas: d.meta!.missing_info_areas,
+            verification_topic: d.meta!.verification_topic,
+            verification_excerpt: d.meta!.verification_excerpt,
+            verification_weight: d.meta!.verification_weight,
+            verification_severity: d.meta!.verification_severity,
+            verification_score: d.meta!.verification_score,
           }),
         });
         if (!res.ok) {

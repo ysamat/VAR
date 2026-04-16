@@ -9,6 +9,48 @@ import {
 import { analyzeSentiment } from "./sentiment";
 import { detectAndTranslate } from "./translation";
 
+function normalizeTopic(text: string): string {
+  return (text ?? "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function normalizeToken(token: string): string {
+  if (token.endsWith("ies") && token.length > 4) return `${token.slice(0, -3)}y`;
+  if (token.endsWith("s") && token.length > 4) return token.slice(0, -1);
+  return token;
+}
+
+function topicsOverlap(a: string, b: string): boolean {
+  const na = normalizeTopic(a);
+  const nb = normalizeTopic(b);
+  if (!na || !nb) return false;
+  if (na.includes(nb) || nb.includes(na)) return true;
+
+  const tokensA = new Set(
+    na
+      .split(" ")
+      .filter((t) => t.length >= 4)
+      .map(normalizeToken)
+  );
+  const tokensB = new Set(
+    nb
+      .split(" ")
+      .filter((t) => t.length >= 4)
+      .map(normalizeToken)
+  );
+  for (const token of tokensA) {
+    if (tokensB.has(token)) return true;
+  }
+  return false;
+}
+
+function buildGapQuestionFromGap(gap: InformationGap): string {
+  return `What was your experience with ${gap.category} during your stay, and what details would help another traveler set expectations?`;
+}
+
 export async function identifyGaps(
   insights: PropertyInsights,
   weightedReviews: WeightedReview[]
@@ -84,28 +126,35 @@ export async function generateQuestions(
     collectSentimentTopics(weightedReviews),
   ]);
 
-  const topGap = gaps[0] ?? {
-    category: "overall experience",
-    description: "general impressions of the stay",
-    priority: 0.5,
-  };
-
   // 50/50 positive vs negative verification
   const verifyPositive = Math.random() < 0.5;
   const targetSentiment = verifyPositive ? "positive" : "negative";
 
   const candidateTopics = sentimentTopics
     .filter((t) => t.sentiment === targetSentiment)
-    .sort((a, b) => b.weight * b.severity - a.weight * a.severity);
+    .sort((a, b) => b.weight * b.severity - a.weight * a.severity)
+    .map((t) => ({ ...t, score: t.weight * t.severity }));
 
   const fallbackTopics =
     candidateTopics.length > 0
       ? candidateTopics
       : sentimentTopics
           .filter((t) => t.sentiment !== "neutral")
-          .sort((a, b) => b.weight * b.severity - a.weight * a.severity);
+          .sort((a, b) => b.weight * b.severity - a.weight * a.severity)
+          .map((t) => ({ ...t, score: t.weight * t.severity }));
 
   const verifyTopic = fallbackTopics[0];
+  const defaultGap: InformationGap = {
+    category: "overall experience",
+    description: "general impressions of the stay",
+    priority: 0.5,
+  };
+  const verificationTopicName = verifyTopic?.topic ?? "";
+  const topGap =
+    gaps.find((g) => !topicsOverlap(g.category, verificationTopicName)) ??
+    gaps.find((g) => !topicsOverlap(g.description, verificationTopicName)) ??
+    gaps[0] ??
+    defaultGap;
 
   const response = await openai.chat.completions.create({
     model: MODEL,
@@ -144,17 +193,40 @@ Return JSON:
   });
 
   const parsed = JSON.parse(response.choices[0].message.content!);
+  const parsedGapQuestion: string = parsed.gap_question ?? "";
+  const parsedVerificationQuestion: string = parsed.verification_question ?? "";
+  const verificationTopicText = verifyTopic?.topic ?? "";
+  const gapQuestionOverlapsVerification =
+    topicsOverlap(parsedGapQuestion, verificationTopicText) ||
+    topicsOverlap(parsedGapQuestion, parsedVerificationQuestion);
+  const safeGapQuestion = gapQuestionOverlapsVerification
+    ? buildGapQuestionFromGap(topGap)
+    : parsedGapQuestion;
 
   return {
     gap_question: {
-      question: parsed.gap_question,
+      question: safeGapQuestion,
       target_gap: topGap.category,
     },
     verification_question: {
-      question: parsed.verification_question,
+      question: parsedVerificationQuestion,
       type: verifyTopic?.sentiment === "positive" ? "positive" : "negative",
       source_topic: verifyTopic?.topic ?? "overall experience",
       source_excerpt: verifyTopic?.excerpt ?? "",
+    },
+    debug: {
+      missing_info_areas: gaps.slice(0, 5),
+      selected_gap: topGap,
+      selected_verification_topic: verifyTopic
+        ? {
+            topic: verifyTopic.topic,
+            sentiment: verifyTopic.sentiment,
+            severity: verifyTopic.severity,
+            weight: verifyTopic.weight,
+            score: verifyTopic.score,
+            excerpt: verifyTopic.excerpt,
+          }
+        : null,
     },
   };
 }

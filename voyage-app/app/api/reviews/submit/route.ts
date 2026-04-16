@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { synthesizeReview } from "@/lib/backend/review-synthesis";
 import { deriveRatingsFromText } from "@/lib/backend/sentiment";
 import { insertReview, updateAggregated } from "@/lib/backend/database";
+import { recordReviewQualityEvent } from "@/lib/backend/review-analytics-store";
 import type { RatingCategory } from "@/lib/backend/types";
 
 export async function POST(req: NextRequest) {
@@ -13,6 +14,15 @@ export async function POST(req: NextRequest) {
       gap_question,
       verification_question,
       verification_type,
+      target_gap,
+      gap_priority,
+      gap_description,
+      missing_info_areas,
+      verification_topic,
+      verification_excerpt,
+      verification_weight,
+      verification_severity,
+      verification_score,
     } = await req.json();
 
     if (!eg_property_id || !gap_answer || !verification_answer) {
@@ -63,6 +73,27 @@ export async function POST(req: NextRequest) {
 
     // 4. Update properties_aggregated with the merged numerical ratings
     await updateAggregated(eg_property_id, mergedRatings);
+
+    // 5. Save demo analytics so admin can show quality uplift in real-time.
+    recordReviewQualityEvent({
+      propertyId: eg_property_id,
+      gapAnswer: gap_answer,
+      verificationAnswer: verification_answer,
+      gapQuestion: gap_question,
+      verificationQuestion: verification_question,
+      verificationType: verification_type,
+      targetGap: target_gap,
+      gapPriority: gap_priority,
+      gapDescription: gap_description,
+      missingInfoAreas: missing_info_areas,
+      verificationTopic: verification_topic,
+      verificationExcerpt: verification_excerpt,
+      verificationWeight: verification_weight,
+      verificationSeverity: verification_severity,
+      verificationScore: verification_score,
+      reviewTitle: synthesized.review_title,
+      reviewBody: synthesized.review_body,
+    });
 
     return NextResponse.json({
       review: newReview,

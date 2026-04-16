@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import { RecapHighlightsPanel } from "@/components/RecapHighlightsPanel";
 import { VarLogo } from "@/components/VarLogo";
 import type { Itinerary } from "@/lib/itineraryData";
@@ -365,12 +366,12 @@ export function TripSummaryCard({
 
         {shared ? (
           <div className="mt-6">
-            <a
+            <Link
               href="/"
               className="block w-full rounded-xl bg-brand-yellow px-4 py-3 text-center text-sm font-semibold text-brand-dark transition hover:bg-brand-yellow-light"
             >
               Try VAR yourself →
-            </a>
+            </Link>
           </div>
         ) : (
           <div className="mt-6 grid gap-3 sm:grid-cols-3">

@@ -97,6 +97,26 @@ export interface GeneratedQuestions {
     source_topic: string;
     source_excerpt: string;
   };
+  debug?: {
+    missing_info_areas: Array<{
+      category: string;
+      description: string;
+      priority: number;
+    }>;
+    selected_gap: {
+      category: string;
+      description: string;
+      priority: number;
+    };
+    selected_verification_topic: {
+      topic: string;
+      sentiment: "positive" | "negative" | "neutral";
+      severity: number;
+      weight: number;
+      score: number;
+      excerpt: string;
+    } | null;
+  };
 }
 
 export interface TypingAnalysis {

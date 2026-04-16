@@ -21,6 +21,15 @@ export type ReviewMeta = {
   gap_question: string;
   verification_question: string;
   verification_type: "positive" | "negative";
+  target_gap?: string;
+  gap_priority?: number;
+  gap_description?: string;
+  missing_info_areas?: Array<{ category: string; description: string; priority: number }>;
+  verification_topic?: string;
+  verification_excerpt?: string;
+  verification_weight?: number;
+  verification_severity?: number;
+  verification_score?: number;
 };
 
 export type StopAnswerData = {
@@ -269,6 +278,15 @@ export function DestinationMapExperience({
       gap_question: string;
       verification_question: string;
       verification_type: "positive" | "negative";
+      target_gap?: string;
+      gap_priority?: number;
+      gap_description?: string;
+      missing_info_areas?: Array<{ category: string; description: string; priority: number }>;
+      verification_topic?: string;
+      verification_excerpt?: string;
+      verification_weight?: number;
+      verification_severity?: number;
+      verification_score?: number;
     }
   ) => {
     const stop = itinerary.stops[activeStopIndex];
@@ -280,6 +298,15 @@ export function DestinationMapExperience({
       gap_question: stop.questions[0] ?? `Tell us about your stay at ${stop.name}.`,
       verification_question: stop.questions[1] ?? "What stood out, good or bad?",
       verification_type: "negative",
+      target_gap: "overall experience",
+      gap_priority: 0.5,
+      gap_description: "general impressions of the stay",
+      missing_info_areas: [],
+      verification_topic: "overall experience",
+      verification_excerpt: "",
+      verification_weight: 0,
+      verification_severity: 0,
+      verification_score: 0,
     };
 
     const stopData: StopAnswerData = {

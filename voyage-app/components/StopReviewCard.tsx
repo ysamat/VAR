@@ -3,6 +3,31 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useRef, useCallback, useEffect } from "react";
 
+type SpeechRecognitionEventLike = Event & {
+  results: ArrayLike<ArrayLike<{ transcript: string }>>;
+  resultIndex: number;
+};
+
+type SpeechRecognitionLike = {
+  lang: string;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onresult: ((event: SpeechRecognitionEventLike) => void) | null;
+  onerror: (() => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+};
+
+type SpeechRecognitionCtor = new () => SpeechRecognitionLike;
+
+declare global {
+  interface Window {
+    webkitSpeechRecognition?: SpeechRecognitionCtor;
+    SpeechRecognition?: SpeechRecognitionCtor;
+  }
+}
+
 export type AIQuestions = {
   gap_question: { question: string; target_gap: string };
   verification_question: {
@@ -10,6 +35,26 @@ export type AIQuestions = {
     type: "positive" | "negative";
     source_topic: string;
     source_excerpt: string;
+  };
+  debug?: {
+    missing_info_areas: Array<{
+      category: string;
+      description: string;
+      priority: number;
+    }>;
+    selected_gap: {
+      category: string;
+      description: string;
+      priority: number;
+    };
+    selected_verification_topic: {
+      topic: string;
+      sentiment: "positive" | "negative" | "neutral";
+      severity: number;
+      weight: number;
+      score: number;
+      excerpt: string;
+    } | null;
   };
 };
 
@@ -30,6 +75,15 @@ type StopReviewCardProps = {
       gap_question: string;
       verification_question: string;
       verification_type: "positive" | "negative";
+      target_gap?: string;
+      gap_priority?: number;
+      gap_description?: string;
+      missing_info_areas?: Array<{ category: string; description: string; priority: number }>;
+      verification_topic?: string;
+      verification_excerpt?: string;
+      verification_weight?: number;
+      verification_severity?: number;
+      verification_score?: number;
     }
   ) => void;
 };
@@ -53,7 +107,20 @@ export function StopReviewCard({
   const [typingSuggestions, setTypingSuggestions] = useState<(string | null)[]>(
     () => displayQuestions.map(() => null)
   );
+  const [listeningIndex, setListeningIndex] = useState<number | null>(null);
+  const [speakingIndex, setSpeakingIndex] = useState<number | null>(null);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const [availableVoices, setAvailableVoices] = useState<SpeechSynthesisVoice[]>([]);
   const debounceTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const recognitionRef = useRef<SpeechRecognitionLike | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioUrlRef = useRef<string | null>(null);
+
+  const supportsSpeechSynthesis =
+    typeof window !== "undefined" && typeof window.speechSynthesis !== "undefined";
+  const supportsSpeechRecognition =
+    typeof window !== "undefined" &&
+    (!!window.SpeechRecognition || !!window.webkitSpeechRecognition);
 
   // Reset answers when AI questions arrive
   const prevIsAI = useRef(isAI);
@@ -118,12 +185,153 @@ export function StopReviewCard({
     handleTypingAnalysis(index, value);
   };
 
+  useEffect(() => {
+    if (!supportsSpeechSynthesis) return;
+    const synth = window.speechSynthesis;
+
+    const loadVoices = () => {
+      const voices = synth.getVoices();
+      if (voices.length > 0) {
+        setAvailableVoices(voices);
+      }
+    };
+
+    loadVoices();
+    synth.onvoiceschanged = loadVoices;
+    return () => {
+      synth.onvoiceschanged = null;
+    };
+  }, [supportsSpeechSynthesis]);
+
+  const handleReadQuestion = async (question: string, index: number) => {
+    if (!question.trim()) return;
+    setSpeechError(null);
+    setSpeakingIndex(index);
+
+    // Stop any previous playback.
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current = null;
+    }
+    if (audioUrlRef.current) {
+      URL.revokeObjectURL(audioUrlRef.current);
+      audioUrlRef.current = null;
+    }
+
+    try {
+      const res = await fetch("/api/reviews/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: question }),
+      });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioUrlRef.current = url;
+      const audio = new Audio(url);
+      audioRef.current = audio;
+      audio.onended = () => setSpeakingIndex((prev) => (prev === index ? null : prev));
+      audio.onerror = () => {
+        setSpeechError("Could not play generated audio.");
+        setSpeakingIndex((prev) => (prev === index ? null : prev));
+      };
+      await audio.play();
+      return;
+    } catch {
+      // Fall back to browser synthesis as a backup path.
+    }
+
+    if (!supportsSpeechSynthesis) {
+      setSpeechError("Read aloud is not supported in this browser.");
+      setSpeakingIndex(null);
+      return;
+    }
+
+    const synth = window.speechSynthesis;
+    if (synth.paused) synth.resume();
+    synth.cancel();
+    const utterance = new SpeechSynthesisUtterance(question);
+    const preferredVoice =
+      availableVoices.find((v) => v.lang.toLowerCase().startsWith("en")) ?? null;
+    if (preferredVoice) utterance.voice = preferredVoice;
+    utterance.lang = preferredVoice?.lang ?? "en-US";
+    utterance.volume = 1;
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.onend = () => setSpeakingIndex((prev) => (prev === index ? null : prev));
+    utterance.onerror = () => {
+      setSpeechError("Could not play read aloud audio. Please try again.");
+      setSpeakingIndex((prev) => (prev === index ? null : prev));
+    };
+    window.setTimeout(() => synth.speak(utterance), 80);
+  };
+
+  const handleVoiceAnswer = (index: number) => {
+    setSpeechError(null);
+    if (!supportsSpeechRecognition) {
+      setSpeechError("Voice input is not supported in this browser.");
+      return;
+    }
+
+    if (listeningIndex === index && recognitionRef.current) {
+      recognitionRef.current.stop();
+      setListeningIndex(null);
+      return;
+    }
+
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      recognitionRef.current = null;
+    }
+
+    const Ctor = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+    if (!Ctor) {
+      setSpeechError("Voice input is not supported in this browser.");
+      return;
+    }
+
+    const recognition = new Ctor();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event) => {
+      const result = event.results[event.resultIndex];
+      const transcript = result?.[0]?.transcript?.trim();
+      if (!transcript) return;
+      const current = answers[index] ?? "";
+      const merged = current ? `${current} ${transcript}` : transcript;
+      handleChange(index, merged);
+    };
+    recognition.onerror = () => {
+      setSpeechError("Could not capture voice input. Please try again.");
+      setListeningIndex(null);
+    };
+    recognition.onend = () => {
+      setListeningIndex((active) => (active === index ? null : active));
+    };
+
+    recognitionRef.current = recognition;
+    setListeningIndex(index);
+    recognition.start();
+  };
+
   const handleSubmit = () => {
     if (isAI) {
       onContinue(answers, {
         gap_question: aiQuestions!.gap_question.question,
         verification_question: aiQuestions!.verification_question.question,
         verification_type: aiQuestions!.verification_question.type,
+        target_gap: aiQuestions!.gap_question.target_gap,
+        gap_priority: aiQuestions!.debug?.selected_gap.priority,
+        gap_description: aiQuestions!.debug?.selected_gap.description,
+        missing_info_areas: aiQuestions!.debug?.missing_info_areas,
+        verification_topic: aiQuestions!.verification_question.source_topic,
+        verification_excerpt: aiQuestions!.verification_question.source_excerpt,
+        verification_weight: aiQuestions!.debug?.selected_verification_topic?.weight,
+        verification_severity: aiQuestions!.debug?.selected_verification_topic?.severity,
+        verification_score: aiQuestions!.debug?.selected_verification_topic?.score,
       });
     } else {
       onContinue(answers);
@@ -134,6 +342,18 @@ export function StopReviewCard({
   useEffect(() => {
     return () => {
       debounceTimers.current.forEach((t) => clearTimeout(t));
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+      if (typeof window !== "undefined" && window.speechSynthesis) {
+        window.speechSynthesis.cancel();
+      }
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      if (audioUrlRef.current) {
+        URL.revokeObjectURL(audioUrlRef.current);
+      }
     };
   }, []);
 
@@ -169,6 +389,31 @@ export function StopReviewCard({
                 <p className="text-sm text-white/80">
                   {index + 1}. {question}
                 </p>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => handleReadQuestion(question, index)}
+                    className={`rounded-md border px-2.5 py-1 text-[11px] uppercase tracking-wide transition ${
+                      speakingIndex === index
+                        ? "border-brand-yellow bg-brand-yellow/15 text-brand-yellow"
+                        : "border-white/15 text-white/75 hover:border-brand-yellow/60 hover:text-brand-yellow"
+                    }`}
+                  >
+                    {speakingIndex === index ? "Playing..." : "Read aloud"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleVoiceAnswer(index)}
+                    disabled={!supportsSpeechRecognition}
+                    className={`rounded-md border px-2.5 py-1 text-[11px] uppercase tracking-wide transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                      listeningIndex === index
+                        ? "border-brand-yellow bg-brand-yellow/15 text-brand-yellow"
+                        : "border-white/15 text-white/75 hover:border-brand-yellow/60 hover:text-brand-yellow"
+                    }`}
+                  >
+                    {listeningIndex === index ? "Stop listening" : "Voice answer"}
+                  </button>
+                </div>
                 <textarea
                   value={answers[index] ?? ""}
                   onChange={(e) => handleChange(index, e.target.value)}
@@ -189,6 +434,9 @@ export function StopReviewCard({
                     </motion.p>
                   )}
                 </AnimatePresence>
+                {speechError && (
+                  <p className="text-xs text-rose-300">{speechError}</p>
+                )}
               </div>
             ))}
           </div>
