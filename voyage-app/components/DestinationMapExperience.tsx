@@ -274,10 +274,18 @@ export function DestinationMapExperience({
     const stop = itinerary.stops[activeStopIndex];
     if (!stop) return;
 
+    // Always provide meta so submission isn't dropped when AI questions
+    // failed to load. Falls back to the trip's static questions.
+    const fallbackMeta: ReviewMeta = {
+      gap_question: stop.questions[0] ?? `Tell us about your stay at ${stop.name}.`,
+      verification_question: stop.questions[1] ?? "What stood out, good or bad?",
+      verification_type: "negative",
+    };
+
     const stopData: StopAnswerData = {
       answers,
       eg_property_id: stop.eg_property_id,
-      meta,
+      meta: meta ?? fallbackMeta,
     };
 
     const merged = { ...answersByStopId, [stop.id]: stopData };

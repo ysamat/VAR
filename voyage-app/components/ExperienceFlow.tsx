@@ -26,33 +26,63 @@ type SynthesizedByStop = Record<
 async function submitAIReviews(
   answersByStopId: Record<string, StopAnswerData>
 ): Promise<SynthesizedByStop> {
+  // Submit any stop with a property id and at least one non-empty answer.
+  // `meta` is guaranteed to be set by DestinationMapExperience (falls back
+  // to static questions when AI questions did not load).
   const submissions = Object.entries(answersByStopId).filter(
-    ([, d]) => d.eg_property_id && d.meta && d.answers.length >= 2
+    ([, d]) =>
+      d.eg_property_id &&
+      d.meta &&
+      d.answers.length >= 2 &&
+      d.answers.some((a) => a.trim().length > 0)
   );
+
+  if (submissions.length === 0) {
+    console.warn(
+      "[submitAIReviews] No stops eligible for submission",
+      Object.entries(answersByStopId).map(([id, d]) => ({
+        id,
+        hasPropertyId: !!d.eg_property_id,
+        hasMeta: !!d.meta,
+        answerCount: d.answers.length,
+      }))
+    );
+  }
 
   const results: SynthesizedByStop = {};
 
   await Promise.allSettled(
     submissions.map(async ([stopId, d]) => {
-      const res = await fetch("/api/reviews/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          eg_property_id: d.eg_property_id,
-          gap_answer: d.answers[0],
-          verification_answer: d.answers[1],
-          gap_question: d.meta!.gap_question,
-          verification_question: d.meta!.verification_question,
-          verification_type: d.meta!.verification_type,
-        }),
-      });
-      if (!res.ok) return;
-      const json = await res.json();
-      if (json?.synthesized?.review_title) {
-        results[stopId] = {
-          review_title: json.synthesized.review_title,
-          review_body: json.synthesized.review_body,
-        };
+      try {
+        const res = await fetch("/api/reviews/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            eg_property_id: d.eg_property_id,
+            gap_answer: d.answers[0],
+            verification_answer: d.answers[1],
+            gap_question: d.meta!.gap_question,
+            verification_question: d.meta!.verification_question,
+            verification_type: d.meta!.verification_type,
+          }),
+        });
+        if (!res.ok) {
+          const body = await res.text().catch(() => "");
+          console.error(
+            `[submitAIReviews] ${stopId} failed: HTTP ${res.status}`,
+            body
+          );
+          return;
+        }
+        const json = await res.json();
+        if (json?.synthesized?.review_title) {
+          results[stopId] = {
+            review_title: json.synthesized.review_title,
+            review_body: json.synthesized.review_body,
+          };
+        }
+      } catch (err) {
+        console.error(`[submitAIReviews] ${stopId} threw`, err);
       }
     })
   );
