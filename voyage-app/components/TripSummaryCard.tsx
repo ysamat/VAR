@@ -17,9 +17,16 @@ type TripSummaryCardProps = {
   answersByStopId: Record<string, string[]>;
   /** AI-generated review title + body per stop id (once /api/reviews/submit returns). */
   synthesizedByStop?: Record<string, SynthesizedEntry | undefined>;
-  onReplay: () => void;
-  onBackToSetup: () => void;
-  onResetToDemo: () => void;
+  /**
+   * When true, renders the read-only variant shown at /shared/[id]: hides
+   * author-only actions (replay / reset) and swaps in a "Try VAR yourself"
+   * CTA. Share-link copy also just copies the current URL instead of
+   * creating a new share row.
+   */
+  shared?: boolean;
+  onReplay?: () => void;
+  onBackToSetup?: () => void;
+  onResetToDemo?: () => void;
 };
 
 /** Build a shareable text recap */
@@ -40,6 +47,7 @@ export function TripSummaryCard({
   itinerary,
   answersByStopId,
   synthesizedByStop,
+  shared = false,
   onReplay,
   onBackToSetup,
   onResetToDemo,
@@ -51,6 +59,10 @@ export function TripSummaryCard({
   const [expandedStopIds, setExpandedStopIds] = useState<Set<string>>(new Set());
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
   const [copyFeedback, setCopyFeedback] = useState<string | null>(null);
+  // Cached share URL so repeat clicks on "Copy share link" don't create
+  // duplicate DB rows. Null until the first share-link generation.
+  const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [creatingShareLink, setCreatingShareLink] = useState(false);
   const storyRef = useRef<HTMLDivElement>(null);
 
   const toggleStop = (stopId: string) => {
@@ -73,6 +85,44 @@ export function TripSummaryCard({
   };
 
   // ── Share actions ──
+
+  const copyShareLink = async () => {
+    if (creatingShareLink) return;
+    setCreatingShareLink(true);
+    try {
+      let url = shareUrl;
+      if (!url) {
+        if (shared) {
+          // On /shared/[id] the current URL *is* the shareable link.
+          url = window.location.href;
+        } else {
+          const res = await fetch("/api/trips/share", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              tripLabel,
+              tripConfig,
+              itinerary,
+              answersByStopId,
+              synthesizedByStop,
+            }),
+          });
+          if (!res.ok) throw new Error("share failed");
+          const { path } = await res.json();
+          url = `${window.location.origin}${path}`;
+        }
+        setShareUrl(url);
+      }
+      await navigator.clipboard.writeText(url);
+      showFeedback("Share link copied!");
+    } catch (err) {
+      console.error("[share link]", err);
+      showFeedback("Couldn't create share link");
+    } finally {
+      setCreatingShareLink(false);
+      setShareMenuOpen(false);
+    }
+  };
 
   const copyToClipboard = async () => {
     try {
@@ -179,6 +229,19 @@ export function TripSummaryCard({
                 animate={{ opacity: 1, scale: 1 }}
                 className="absolute right-0 top-full z-50 mt-2 w-52 rounded-xl border border-white/15 bg-brand-dark-card/95 p-2 shadow-2xl backdrop-blur-md"
               >
+                <button
+                  type="button"
+                  onClick={copyShareLink}
+                  disabled={creatingShareLink}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm text-white transition hover:bg-white/8 disabled:opacity-60"
+                >
+                  <span className="text-lg">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" className="text-brand-yellow">
+                      <path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>
+                    </svg>
+                  </span>
+                  {creatingShareLink ? "Creating link…" : "Copy share link"}
+                </button>
                 <button
                   type="button"
                   onClick={shareToInstagram}
@@ -300,29 +363,40 @@ export function TripSummaryCard({
           </span>
         </div>
 
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          <button
-            type="button"
-            onClick={onReplay}
-            className="rounded-xl bg-brand-yellow px-4 py-3 text-sm font-semibold text-brand-dark transition hover:bg-brand-yellow-light"
-          >
-            Replay this trip
-          </button>
-          <button
-            type="button"
-            onClick={onBackToSetup}
-            className="rounded-xl border border-white/20 bg-brand-dark-surface px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-dark-card"
-          >
-            Back to setup
-          </button>
-          <button
-            type="button"
-            onClick={onResetToDemo}
-            className="rounded-xl border border-brand-yellow/25 bg-brand-dark/50 px-4 py-3 text-sm font-medium text-brand-yellow transition hover:bg-brand-dark-card"
-          >
-            Reset to demo
-          </button>
-        </div>
+        {shared ? (
+          <div className="mt-6">
+            <a
+              href="/"
+              className="block w-full rounded-xl bg-brand-yellow px-4 py-3 text-center text-sm font-semibold text-brand-dark transition hover:bg-brand-yellow-light"
+            >
+              Try VAR yourself →
+            </a>
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-3 sm:grid-cols-3">
+            <button
+              type="button"
+              onClick={onReplay}
+              className="rounded-xl bg-brand-yellow px-4 py-3 text-sm font-semibold text-brand-dark transition hover:bg-brand-yellow-light"
+            >
+              Replay this trip
+            </button>
+            <button
+              type="button"
+              onClick={onBackToSetup}
+              className="rounded-xl border border-white/20 bg-brand-dark-surface px-4 py-3 text-sm font-medium text-white transition hover:bg-brand-dark-card"
+            >
+              Back to setup
+            </button>
+            <button
+              type="button"
+              onClick={onResetToDemo}
+              className="rounded-xl border border-brand-yellow/25 bg-brand-dark/50 px-4 py-3 text-sm font-medium text-brand-yellow transition hover:bg-brand-dark-card"
+            >
+              Reset to demo
+            </button>
+          </div>
+        )}
       </div>
     </motion.div>
   );
