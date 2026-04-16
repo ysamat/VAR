@@ -56,7 +56,7 @@ export function AnimatedText({
         opacity,
         transform: `translateY(${translateY}px)`,
         fontFamily: theme.font.sans,
-        color: theme.colors.white,
+        color: theme.semantic.text,
         ...style,
       }}
     >

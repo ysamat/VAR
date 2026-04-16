@@ -32,14 +32,14 @@ export function Scene03_Solution() {
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(135deg, ${theme.colors.navyDark} 0%, ${theme.colors.dark} 50%, ${theme.colors.navy} 100%)`,
+        background: `linear-gradient(135deg, ${theme.semantic.bgSoft} 0%, ${theme.semantic.bg} 50%, ${theme.semantic.bgDeep} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
       {/* Soft radial glow behind the logo for brand feel */}
       <AbsoluteFill
         style={{
-          background: `radial-gradient(circle at 50% 42%, rgba(251, 204, 51, 0.16) 0%, transparent 55%)`,
+          background: `radial-gradient(circle at 50% 42%, rgba(255, 253, 244, 0.55) 0%, transparent 55%)`,
         }}
       />
 
@@ -70,7 +70,7 @@ export function Scene03_Solution() {
           style={{
             fontSize: 160,
             fontWeight: 800,
-            color: theme.colors.white,
+            color: theme.semantic.text,
             letterSpacing: "-0.04em",
             lineHeight: 1,
           }}
@@ -83,8 +83,8 @@ export function Scene03_Solution() {
           durationFrames={22}
           style={{
             fontSize: 36,
-            fontWeight: 500,
-            color: theme.colors.yellow,
+            fontWeight: 600,
+            color: theme.semantic.accent,
             letterSpacing: "0.32em",
             textTransform: "uppercase",
           }}
@@ -97,8 +97,8 @@ export function Scene03_Solution() {
           durationFrames={30}
           style={{
             fontSize: 48,
-            fontWeight: 400,
-            color: theme.colors.mutedStrong,
+            fontWeight: 500,
+            color: theme.semantic.textStrong,
             marginTop: 40,
             maxWidth: 1400,
             lineHeight: 1.3,
@@ -113,7 +113,7 @@ export function Scene03_Solution() {
           style={{
             fontSize: 32,
             fontWeight: 400,
-            color: theme.colors.muted,
+            color: theme.semantic.textMuted,
             maxWidth: 1200,
             lineHeight: 1.5,
             marginTop: 16,

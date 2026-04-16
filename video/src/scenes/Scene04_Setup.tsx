@@ -29,7 +29,7 @@ export function Scene04_Setup() {
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(160deg, ${theme.colors.navy} 0%, ${theme.colors.dark} 60%)`,
+        background: `linear-gradient(160deg, ${theme.semantic.bgSoft} 0%, ${theme.semantic.bg} 60%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -50,7 +50,7 @@ export function Scene04_Setup() {
               fontSize: 26,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: theme.colors.yellow,
+              color: theme.semantic.accent,
               fontWeight: 600,
               marginBottom: 20,
             }}
@@ -63,7 +63,7 @@ export function Scene04_Setup() {
             style={{
               fontSize: 84,
               fontWeight: 600,
-              color: theme.colors.white,
+              color: theme.semantic.text,
               lineHeight: 1,
             }}
           >
@@ -91,7 +91,7 @@ export function Scene04_Setup() {
                   style={{
                     fontSize: 44,
                     fontWeight: 600,
-                    color: theme.colors.white,
+                    color: theme.semantic.panelText,
                     lineHeight: 1.2,
                   }}
                 >
@@ -100,7 +100,7 @@ export function Scene04_Setup() {
                 <div
                   style={{
                     fontSize: 22,
-                    color: theme.colors.muted,
+                    color: theme.semantic.panelTextMuted,
                     marginTop: 8,
                   }}
                 >
@@ -138,8 +138,8 @@ export function Scene04_Setup() {
                         gap: 20,
                         padding: "14px 20px",
                         borderRadius: 12,
-                        background: "rgba(251, 204, 51, 0.08)",
-                        border: "1px solid rgba(251, 204, 51, 0.18)",
+                        background: theme.semantic.panelInput,
+                        border: `1px solid ${theme.semantic.panelInputBorder}`,
                       }}
                     >
                       <div
@@ -147,14 +147,14 @@ export function Scene04_Setup() {
                           width: 12,
                           height: 12,
                           borderRadius: 6,
-                          background: theme.colors.yellow,
+                          background: theme.semantic.panelAccent,
                         }}
                       />
                       <div>
                         <div
                           style={{
                             fontSize: 28,
-                            color: theme.colors.white,
+                            color: theme.semantic.panelText,
                             fontWeight: 600,
                           }}
                         >
@@ -163,7 +163,7 @@ export function Scene04_Setup() {
                         <div
                           style={{
                             fontSize: 18,
-                            color: theme.colors.muted,
+                            color: theme.semantic.panelTextMuted,
                           }}
                         >
                           {s.subtitle}
@@ -182,7 +182,7 @@ export function Scene04_Setup() {
               durationFrames={26}
               style={{
                 fontSize: 40,
-                color: theme.colors.mutedStrong,
+                color: theme.semantic.textStrong,
                 lineHeight: 1.3,
               }}
             >
@@ -193,7 +193,7 @@ export function Scene04_Setup() {
               durationFrames={26}
               style={{
                 fontSize: 32,
-                color: theme.colors.muted,
+                color: theme.semantic.textMuted,
                 marginTop: 28,
                 lineHeight: 1.4,
               }}

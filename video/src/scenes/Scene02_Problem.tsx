@@ -36,7 +36,7 @@ export function Scene02_Problem() {
   return (
     <AbsoluteFill
       style={{
-        background: theme.colors.dark,
+        background: `linear-gradient(180deg, ${theme.semantic.bg} 0%, ${theme.semantic.bgDeep} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -56,7 +56,7 @@ export function Scene02_Problem() {
             fontSize: 26,
             letterSpacing: "0.28em",
             textTransform: "uppercase",
-            color: theme.colors.yellow,
+            color: theme.semantic.accent,
             fontWeight: 600,
             marginBottom: 16,
           }}
@@ -70,7 +70,7 @@ export function Scene02_Problem() {
           style={{
             fontSize: 72,
             fontWeight: 600,
-            color: theme.colors.white,
+            color: theme.semantic.text,
             marginBottom: 40,
             lineHeight: 1.1,
           }}
@@ -105,7 +105,7 @@ export function Scene02_Problem() {
                     width: 14,
                     height: 14,
                     borderRadius: 7,
-                    background: theme.colors.yellow,
+                    background: theme.semantic.accent,
                     alignSelf: "center",
                   }}
                 />
@@ -113,7 +113,7 @@ export function Scene02_Problem() {
                   style={{
                     fontSize: 44,
                     fontWeight: 700,
-                    color: theme.colors.white,
+                    color: theme.semantic.text,
                     minWidth: 280,
                   }}
                 >
@@ -123,7 +123,7 @@ export function Scene02_Problem() {
                   style={{
                     fontSize: 40,
                     fontWeight: 400,
-                    color: theme.colors.muted,
+                    color: theme.semantic.textMuted,
                   }}
                 >
                   {b.body}
@@ -139,7 +139,7 @@ export function Scene02_Problem() {
           style={{
             fontSize: 48,
             fontWeight: 500,
-            color: theme.colors.yellow,
+            color: theme.semantic.textStrong,
             marginTop: 60,
             fontStyle: "italic",
           }}

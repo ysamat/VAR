@@ -49,7 +49,7 @@ export function Scene08_Outro() {
   return (
     <AbsoluteFill
       style={{
-        background: `radial-gradient(circle at 50% 40%, ${theme.colors.navy} 0%, ${theme.colors.dark} 60%, ${theme.colors.navyDark} 100%)`,
+        background: `radial-gradient(circle at 50% 40%, ${theme.semantic.bgSoft} 0%, ${theme.semantic.bg} 60%, ${theme.semantic.bgDeep} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -70,7 +70,7 @@ export function Scene08_Outro() {
             flexDirection: "column",
             gap: 38,
             alignItems: "center",
-            opacity: interpolate(frame, [260, 320], [1, 0.35], {
+            opacity: interpolate(frame, [260, 320], [1, 0.4], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
             }),
@@ -102,8 +102,8 @@ export function Scene08_Outro() {
                     fontSize: 24,
                     letterSpacing: "0.28em",
                     textTransform: "uppercase",
-                    color: theme.colors.yellow,
-                    fontWeight: 600,
+                    color: theme.semantic.accent,
+                    fontWeight: 700,
                     minWidth: 400,
                     textAlign: "right",
                   }}
@@ -114,7 +114,7 @@ export function Scene08_Outro() {
                   style={{
                     fontSize: 44,
                     fontWeight: 500,
-                    color: theme.colors.white,
+                    color: theme.semantic.text,
                   }}
                 >
                   {b.body}
@@ -140,8 +140,8 @@ export function Scene08_Outro() {
           durationFrames={28}
           style={{
             fontSize: 34,
-            fontWeight: 400,
-            color: theme.colors.muted,
+            fontWeight: 500,
+            color: theme.semantic.textStrong,
             letterSpacing: "0.04em",
           }}
         >

@@ -31,7 +31,7 @@ export const TOTAL_FRAMES = SCENES.reduce((s, sc) => s + sc.duration, 0);
 export function VarDemo() {
   let offset = 0;
   return (
-    <AbsoluteFill style={{ background: theme.colors.dark }}>
+    <AbsoluteFill style={{ background: theme.semantic.bg }}>
       {SCENES.map((sc) => {
         const from = offset;
         offset += sc.duration;

@@ -18,7 +18,7 @@ export function Scene01_Hook() {
   return (
     <AbsoluteFill
       style={{
-        background: `radial-gradient(circle at 50% 30%, ${theme.colors.navyLight} 0%, ${theme.colors.dark} 60%, ${theme.colors.navyDark} 100%)`,
+        background: `radial-gradient(circle at 50% 30%, ${theme.semantic.bgSoft} 0%, ${theme.semantic.bg} 55%, ${theme.semantic.bgDeep} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -40,7 +40,7 @@ export function Scene01_Hook() {
           style={{
             fontSize: 84,
             fontWeight: 600,
-            color: theme.colors.white,
+            color: theme.semantic.text,
             maxWidth: 1400,
             lineHeight: 1.1,
           }}
@@ -54,7 +54,7 @@ export function Scene01_Hook() {
           style={{
             fontSize: 42,
             fontWeight: 400,
-            color: theme.colors.muted,
+            color: theme.semantic.textMuted,
           }}
         >
           A week of memories. Photos. Stories.
@@ -66,8 +66,9 @@ export function Scene01_Hook() {
           style={{
             fontSize: 36,
             fontWeight: 500,
-            color: theme.colors.yellow,
-            letterSpacing: "0.08em",
+            color: theme.semantic.accent,
+            letterSpacing: "0.28em",
+            textTransform: "uppercase",
             marginTop: 40,
           }}
         >
@@ -81,11 +82,12 @@ export function Scene01_Hook() {
           style={{
             fontSize: 56,
             fontWeight: 500,
-            color: theme.colors.white,
-            background: theme.colors.darkCard,
+            color: theme.semantic.panelText,
+            background: theme.semantic.panelBg,
             padding: "20px 40px",
             borderRadius: 14,
-            border: `1px solid rgba(251, 204, 51, 0.3)`,
+            border: `1px solid ${theme.semantic.panelBorder}`,
+            boxShadow: theme.semantic.panelShadow,
           }}
         >
           ⭐⭐⭐⭐⭐ Rate your stay.

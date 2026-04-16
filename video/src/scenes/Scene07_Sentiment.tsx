@@ -28,7 +28,7 @@ export function Scene07_Sentiment() {
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(135deg, ${theme.colors.navyDark} 0%, ${theme.colors.dark} 100%)`,
+        background: `linear-gradient(135deg, ${theme.semantic.bgSoft} 0%, ${theme.semantic.bg} 60%, ${theme.semantic.bgDeep} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -48,7 +48,7 @@ export function Scene07_Sentiment() {
               fontSize: 26,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: theme.colors.yellow,
+              color: theme.semantic.accent,
               fontWeight: 600,
               marginBottom: 18,
             }}
@@ -61,7 +61,7 @@ export function Scene07_Sentiment() {
             style={{
               fontSize: 76,
               fontWeight: 600,
-              color: theme.colors.white,
+              color: theme.semantic.text,
               lineHeight: 1.05,
             }}
           >
@@ -93,7 +93,7 @@ export function Scene07_Sentiment() {
                   fontSize: 16,
                   letterSpacing: "0.24em",
                   textTransform: "uppercase",
-                  color: theme.colors.yellow,
+                  color: theme.semantic.panelAccent,
                   fontWeight: 600,
                   marginBottom: 14,
                 }}
@@ -103,7 +103,7 @@ export function Scene07_Sentiment() {
               <div
                 style={{
                   fontSize: 24,
-                  color: theme.colors.mutedStrong,
+                  color: theme.semantic.panelText,
                   lineHeight: 1.5,
                 }}
               >
@@ -134,7 +134,7 @@ export function Scene07_Sentiment() {
                 fontSize: 16,
                 letterSpacing: "0.24em",
                 textTransform: "uppercase",
-                color: theme.colors.yellow,
+                color: theme.semantic.accent,
                 fontWeight: 600,
                 marginBottom: 18,
                 opacity: interpolate(frame, [140, 180], [0, 1], {
@@ -184,19 +184,19 @@ export function Scene07_Sentiment() {
                       padding: "12px 18px",
                       borderRadius: 10,
                       background: isOverall
-                        ? "rgba(251, 204, 51, 0.12)"
-                        : "rgba(255, 255, 255, 0.04)",
+                        ? theme.semantic.panelBg
+                        : "rgba(255, 253, 244, 0.55)",
                       border: isOverall
-                        ? "1px solid rgba(251, 204, 51, 0.4)"
-                        : "1px solid rgba(255, 255, 255, 0.08)",
+                        ? `1px solid ${theme.semantic.accent}`
+                        : `1px solid ${theme.semantic.panelBorder}`,
                     }}
                   >
                     <div
                       style={{
                         fontSize: 24,
                         color: isOverall
-                          ? theme.colors.yellow
-                          : theme.colors.mutedStrong,
+                          ? theme.semantic.text
+                          : theme.semantic.textStrong,
                         fontWeight: isOverall ? 700 : 500,
                         minWidth: 260,
                         fontFeatureSettings: "'tnum'",
@@ -209,7 +209,7 @@ export function Scene07_Sentiment() {
                         flex: 1,
                         height: 10,
                         borderRadius: 5,
-                        background: "rgba(255,255,255,0.08)",
+                        background: "rgba(15, 18, 35, 0.12)",
                         overflow: "hidden",
                       }}
                     >
@@ -217,7 +217,7 @@ export function Scene07_Sentiment() {
                         style={{
                           width: `${fillPct}%`,
                           height: "100%",
-                          background: theme.colors.yellow,
+                          background: theme.semantic.accent,
                           borderRadius: 5,
                         }}
                       />
@@ -226,7 +226,7 @@ export function Scene07_Sentiment() {
                       style={{
                         fontSize: 28,
                         fontWeight: 700,
-                        color: theme.colors.white,
+                        color: theme.semantic.text,
                         minWidth: 60,
                         textAlign: "right",
                         fontFeatureSettings: "'tnum'",
@@ -246,7 +246,7 @@ export function Scene07_Sentiment() {
           durationFrames={28}
           style={{
             fontSize: 36,
-            color: theme.colors.mutedStrong,
+            color: theme.semantic.textStrong,
             fontStyle: "italic",
             textAlign: "center",
             marginTop: 20,
@@ -269,8 +269,8 @@ function Pipeline({ frame }: { frame: number }) {
       <svg width={280} height={120} viewBox="0 0 280 120">
         <defs>
           <linearGradient id="pipe" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor={theme.colors.yellow} stopOpacity={0.1} />
-            <stop offset="100%" stopColor={theme.colors.yellow} stopOpacity={1} />
+            <stop offset="0%" stopColor={theme.semantic.accent} stopOpacity={0.1} />
+            <stop offset="100%" stopColor={theme.semantic.accent} stopOpacity={1} />
           </linearGradient>
         </defs>
         <line
@@ -278,8 +278,9 @@ function Pipeline({ frame }: { frame: number }) {
           y1={60}
           x2={270}
           y2={60}
-          stroke="rgba(255,255,255,0.15)"
+          stroke={theme.semantic.accentSoft}
           strokeWidth={2}
+          opacity={0.35}
         />
         <line
           x1={10}
@@ -293,7 +294,7 @@ function Pipeline({ frame }: { frame: number }) {
         {/* Arrow head */}
         <polygon
           points={`${10 + 260 * flow},60 ${10 + 260 * flow - 12},54 ${10 + 260 * flow - 12},66`}
-          fill={theme.colors.yellow}
+          fill={theme.semantic.accent}
           opacity={flow}
         />
       </svg>
@@ -302,7 +303,7 @@ function Pipeline({ frame }: { frame: number }) {
           fontSize: 18,
           letterSpacing: "0.22em",
           textTransform: "uppercase",
-          color: theme.colors.yellow,
+          color: theme.semantic.accent,
           fontWeight: 600,
           opacity: flow,
         }}
@@ -312,7 +313,7 @@ function Pipeline({ frame }: { frame: number }) {
       <div
         style={{
           fontSize: 14,
-          color: theme.colors.muted,
+          color: theme.semantic.textMuted,
           opacity: flow,
           textAlign: "center",
           lineHeight: 1.4,

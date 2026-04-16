@@ -34,7 +34,7 @@ export function Brand({ size = 140, showText = true, style }: Props) {
             fontSize: size * 0.7,
             fontWeight: 700,
             letterSpacing: "-0.02em",
-            color: theme.colors.white,
+            color: theme.semantic.text,
           }}
         >
           VAR

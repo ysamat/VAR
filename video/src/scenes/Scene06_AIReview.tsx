@@ -36,7 +36,7 @@ export function Scene06_AIReview() {
   return (
     <AbsoluteFill
       style={{
-        background: `linear-gradient(180deg, ${theme.colors.navyDark} 0%, ${theme.colors.dark} 100%)`,
+        background: `linear-gradient(180deg, ${theme.semantic.bg} 0%, ${theme.semantic.bgSoft} 100%)`,
         fontFamily: theme.font.sans,
       }}
     >
@@ -57,7 +57,7 @@ export function Scene06_AIReview() {
               fontSize: 26,
               letterSpacing: "0.28em",
               textTransform: "uppercase",
-              color: theme.colors.yellow,
+              color: theme.semantic.accent,
               fontWeight: 600,
               marginBottom: 18,
             }}
@@ -70,7 +70,7 @@ export function Scene06_AIReview() {
             style={{
               fontSize: 80,
               fontWeight: 600,
-              color: theme.colors.white,
+              color: theme.semantic.text,
               lineHeight: 1.05,
             }}
           >
@@ -107,7 +107,7 @@ export function Scene06_AIReview() {
                   fontSize: 42,
                   fontWeight: 600,
                   marginTop: 14,
-                  color: theme.colors.white,
+                  color: theme.semantic.panelText,
                 }}
               >
                 Hôtel de Crillon
@@ -115,7 +115,7 @@ export function Scene06_AIReview() {
               <div
                 style={{
                   fontSize: 20,
-                  color: theme.colors.muted,
+                  color: theme.semantic.panelTextMuted,
                   marginTop: 4,
                   marginBottom: 32,
                 }}
@@ -127,7 +127,7 @@ export function Scene06_AIReview() {
                 style={{
                   fontSize: 24,
                   fontWeight: 500,
-                  color: theme.colors.mutedStrong,
+                  color: theme.semantic.panelText,
                   marginBottom: 14,
                   lineHeight: 1.4,
                 }}
@@ -151,7 +151,7 @@ export function Scene06_AIReview() {
                   transition: "opacity 0.25s, transform 0.25s",
                   fontSize: 20,
                   fontStyle: "italic",
-                  color: "rgba(251, 204, 51, 0.85)",
+                  color: theme.semantic.panelAccent,
                 }}
               >
                 Nice — can you describe the fixtures and water pressure?
@@ -206,7 +206,7 @@ export function Scene06_AIReview() {
                       fontSize: 16,
                       letterSpacing: "0.24em",
                       textTransform: "uppercase",
-                      color: theme.colors.yellow,
+                      color: theme.semantic.accent,
                       fontWeight: 600,
                       marginBottom: 6,
                     }}
@@ -216,7 +216,7 @@ export function Scene06_AIReview() {
                   <div
                     style={{
                       fontSize: 30,
-                      color: theme.colors.mutedStrong,
+                      color: theme.semantic.textStrong,
                       lineHeight: 1.35,
                     }}
                   >

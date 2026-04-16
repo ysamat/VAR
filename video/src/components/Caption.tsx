@@ -38,8 +38,8 @@ export function Caption({ children, startFrame, eyebrow, accent }: CaptionProps)
             fontSize: 22,
             letterSpacing: "0.32em",
             textTransform: "uppercase",
-            color: theme.colors.yellow,
-            fontWeight: 600,
+            color: theme.semantic.accent,
+            fontWeight: 700,
           }}
         >
           {eyebrow}
@@ -52,7 +52,7 @@ export function Caption({ children, startFrame, eyebrow, accent }: CaptionProps)
           fontSize: 52,
           fontWeight: 500,
           lineHeight: 1.2,
-          color: accent ? theme.colors.yellow : theme.colors.white,
+          color: accent ? theme.semantic.accent : theme.semantic.text,
           maxWidth: 1400,
         }}
       >
