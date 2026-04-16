@@ -57,33 +57,18 @@ export function Scene03_Solution() {
         <div
           style={{
             opacity: logoOpacity,
-            transform: `scale(${0.8 + logoPop * 0.2})`,
+            transform: `scale(${0.85 + logoPop * 0.15})`,
           }}
         >
-          <Brand size={200} showText={false} />
+          <Brand size={760} showText={false} />
         </div>
 
         <AnimatedText
-          startFrame={70}
-          durationFrames={24}
-          bounce
-          style={{
-            fontSize: 160,
-            fontWeight: 800,
-            color: theme.semantic.text,
-            letterSpacing: "-0.04em",
-            lineHeight: 1,
-          }}
-        >
-          VAR
-        </AnimatedText>
-
-        <AnimatedText
-          startFrame={110}
+          startFrame={90}
           durationFrames={22}
           style={{
             fontSize: 36,
-            fontWeight: 600,
+            fontWeight: 700,
             color: theme.semantic.accent,
             letterSpacing: "0.32em",
             textTransform: "uppercase",

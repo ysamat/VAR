@@ -9,8 +9,9 @@ import { AnimatedText } from "../components/AnimatedText";
 
 /**
  * Scene 05 — Cinematic globe flight (20s / 600 frames)
- * Navy globe with yellow-light continents on a yellow canvas. A navy-dark
- * flight arc threads JFK → LHR across the top of the globe.
+ * Navy dotted globe on a yellow canvas. Continents are built from ~600
+ * small dots whose positions are defined by overlapping ellipse land-masks
+ * — same pattern Apple/Stripe use so viewers instantly read "Earth".
  */
 export function Scene05_Globe() {
   const frame = useCurrentFrame();
@@ -28,19 +29,17 @@ export function Scene05_Globe() {
     extrapolateRight: "clamp",
   });
 
-  // Arc endpoints roughly corresponding to JFK → LHR on a tilted globe
-  const startX = 680;
-  const startY = 640;
-  const endX = 1140;
-  const endY = 430;
+  // Arc endpoints — JFK (east coast N.America) → LHR (British Isles)
+  const startX = 870;
+  const startY = 590;
+  const endX = 1060;
+  const endY = 415;
   const midX = (startX + endX) / 2;
   const midY = Math.min(startY, endY) - 220;
 
-  // Quadratic bezier path
   const arcPath = `M ${startX} ${startY} Q ${midX} ${midY} ${endX} ${endY}`;
   const arcLength = 900;
 
-  // Plane position on the bezier at t = planeProgress
   const t = planeProgress;
   const px =
     (1 - t) * (1 - t) * startX + 2 * (1 - t) * t * midX + t * t * endX;
@@ -82,7 +81,7 @@ export function Scene05_Globe() {
             }}
           />
 
-          {/* Continents + grid inside a clipped SVG so nothing spills past the sphere edge */}
+          {/* Dot-matrix continents + grid, clipped to sphere */}
           <svg
             viewBox="0 0 900 900"
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%" }}
@@ -94,60 +93,37 @@ export function Scene05_Globe() {
             </defs>
 
             <g clipPath="url(#globeClip)">
-              {/* Continents — stylized landmasses on the navy sphere */}
-              <g
-                fill={theme.semantic.continent}
-                stroke={theme.semantic.continentStroke}
-                strokeWidth={1.5}
-                strokeLinejoin="round"
-              >
-                {/* North America */}
-                <path d="M 160 260 Q 140 300 160 360 Q 180 420 230 450 Q 270 470 300 450 Q 330 420 320 380 Q 340 340 320 300 Q 300 260 260 240 Q 220 230 190 240 Z" />
-                {/* Central America sliver */}
-                <path d="M 300 470 Q 320 490 340 510 Q 355 530 350 545 Q 340 540 325 525 Q 310 505 300 485 Z" />
-                {/* South America */}
-                <path d="M 360 560 Q 340 600 345 650 Q 355 710 390 740 Q 420 760 440 740 Q 460 700 450 650 Q 440 610 420 580 Q 400 560 380 555 Z" />
-                {/* Greenland */}
-                <path d="M 370 170 Q 360 200 380 225 Q 410 230 420 205 Q 420 180 400 165 Z" />
-                {/* Europe */}
-                <path d="M 460 260 Q 450 285 470 310 Q 495 325 520 315 Q 540 300 535 275 Q 520 255 495 252 Q 475 252 460 260 Z" />
-                {/* Africa */}
-                <path d="M 490 345 Q 470 390 475 450 Q 490 520 530 565 Q 565 590 595 570 Q 615 530 610 480 Q 620 430 600 380 Q 575 345 540 340 Q 510 338 490 345 Z" />
-                {/* Asia (big landmass) */}
-                <path d="M 560 235 Q 560 270 580 290 Q 620 300 670 295 Q 720 290 760 305 Q 790 320 790 345 Q 780 375 740 385 Q 700 395 660 390 Q 620 390 590 375 Q 565 360 555 335 Q 545 300 545 275 Q 545 245 560 235 Z" />
-                {/* India subcontinent */}
-                <path d="M 650 385 Q 660 410 655 445 Q 650 470 635 470 Q 625 450 630 420 Q 635 395 650 385 Z" />
-                {/* SE Asia archipelago dots */}
-                <path d="M 745 420 Q 755 425 760 440 Q 750 445 740 435 Z" />
-                <path d="M 775 445 Q 790 450 790 465 Q 780 470 770 460 Z" />
-                {/* Australia */}
-                <path d="M 720 580 Q 700 610 720 640 Q 760 660 800 645 Q 820 620 805 590 Q 775 570 745 575 Z" />
-              </g>
-
-              {/* Lat/long grid on top, subtle */}
-              {[150, 250, 350, 445].map((r) => (
+              {/* Faint lat/long grid under the dots */}
+              {[150, 250, 350, 430].map((r) => (
                 <ellipse
                   key={`v-${r}`}
                   cx={450}
                   cy={450}
                   rx={r}
-                  ry={440}
+                  ry={420}
                   fill="none"
-                  stroke="rgba(255, 243, 194, 0.12)"
-                  strokeWidth={1}
-                />
-              ))}
-              {[0, 90, 180, 270, 360].map((deg) => (
-                <line
-                  key={`h-${deg}`}
-                  x1={20}
-                  y1={450 + (deg - 180) * 1.1}
-                  x2={880}
-                  y2={450 + (deg - 180) * 1.1}
                   stroke="rgba(255, 243, 194, 0.08)"
                   strokeWidth={1}
                 />
               ))}
+              {[-300, -200, -100, 0, 100, 200, 300].map((dy) => (
+                <line
+                  key={`h-${dy}`}
+                  x1={20}
+                  y1={450 + dy}
+                  x2={880}
+                  y2={450 + dy}
+                  stroke="rgba(255, 243, 194, 0.06)"
+                  strokeWidth={1}
+                />
+              ))}
+
+              {/* Continent dots */}
+              <g fill={theme.semantic.continent}>
+                {LAND_DOTS.map((d, i) => (
+                  <circle key={i} cx={d.x} cy={d.y} r={d.big ? 3.2 : 2.4} />
+                ))}
+              </g>
             </g>
           </svg>
         </div>
@@ -304,3 +280,80 @@ export function Scene05_Globe() {
     </AbsoluteFill>
   );
 }
+
+/**
+ * Ellipse "land masks" in globe-local coords (900×900, center 450,450).
+ * Laid out as an Atlantic-centered orthographic view of Earth. Overlapping
+ * ellipses build up each continent's silhouette; a grid-sample step then
+ * turns them into the dot field.
+ */
+const LAND_MASKS: Array<{ cx: number; cy: number; rx: number; ry: number }> = [
+  // North America
+  { cx: 270, cy: 330, rx: 135, ry: 80 },   // Canada
+  { cx: 310, cy: 430, rx: 100, ry: 55 },   // USA
+  { cx: 130, cy: 270, rx: 55, ry: 28 },    // Alaska
+  { cx: 270, cy: 530, rx: 42, ry: 55 },    // Mexico
+  { cx: 315, cy: 600, rx: 32, ry: 26 },    // Central America
+  { cx: 375, cy: 480, rx: 10, ry: 36 },    // Florida
+  // Greenland
+  { cx: 440, cy: 195, rx: 40, ry: 55 },
+  // South America
+  { cx: 415, cy: 600, rx: 55, ry: 35 },    // Venezuela / Colombia bulge
+  { cx: 460, cy: 680, rx: 60, ry: 55 },    // Brazil
+  { cx: 445, cy: 760, rx: 24, ry: 35 },    // Argentina / Chile tail
+  // Europe
+  { cx: 570, cy: 290, rx: 55, ry: 32 },    // main continent
+  { cx: 585, cy: 230, rx: 20, ry: 42 },    // Scandinavia
+  { cx: 525, cy: 298, rx: 14, ry: 20 },    // UK / Ireland
+  { cx: 525, cy: 350, rx: 25, ry: 18 },    // Iberia
+  { cx: 580, cy: 340, rx: 10, ry: 28 },    // Italy
+  // Africa
+  { cx: 605, cy: 420, rx: 80, ry: 45 },    // North Africa (Sahara belt)
+  { cx: 610, cy: 510, rx: 55, ry: 60 },    // Central Africa
+  { cx: 595, cy: 600, rx: 30, ry: 45 },    // Southern Africa
+  { cx: 675, cy: 465, rx: 18, ry: 30 },    // Horn of Africa
+  { cx: 650, cy: 540, rx: 12, ry: 22 },    // Madagascar
+  // Asia
+  { cx: 745, cy: 275, rx: 130, ry: 55 },   // Russia
+  { cx: 685, cy: 385, rx: 40, ry: 30 },    // Middle East
+  { cx: 735, cy: 470, rx: 22, ry: 48 },    // India subcontinent
+  { cx: 810, cy: 355, rx: 45, ry: 50 },    // China / East Asia
+  { cx: 805, cy: 445, rx: 25, ry: 30 },    // SE Asia peninsula
+  { cx: 825, cy: 495, rx: 32, ry: 12 },    // Indonesia
+  { cx: 790, cy: 505, rx: 10, ry: 8 },     // extra island
+  // Australia
+  { cx: 850, cy: 580, rx: 42, ry: 26 },
+  { cx: 870, cy: 620, rx: 6, ry: 6 },      // Tasmania
+];
+
+function isLand(x: number, y: number): boolean {
+  for (const m of LAND_MASKS) {
+    const dx = (x - m.cx) / m.rx;
+    const dy = (y - m.cy) / m.ry;
+    if (dx * dx + dy * dy <= 1) return true;
+  }
+  return false;
+}
+
+/** Pre-computed continent dot field (module-scope, no per-frame cost). */
+const LAND_DOTS: Array<{ x: number; y: number; big: boolean }> = (() => {
+  const out: Array<{ x: number; y: number; big: boolean }> = [];
+  const step = 11;
+  const globeR2 = 430 * 430;
+  for (let x = 20; x < 880; x += step) {
+    for (let y = 20; y < 880; y += step) {
+      const ddx = x - 450;
+      const ddy = y - 450;
+      if (ddx * ddx + ddy * ddy > globeR2) continue;
+      if (!isLand(x, y)) continue;
+      // "Big" dots on deeply interior land for a subtle density gradient
+      const interior =
+        isLand(x + step, y) &&
+        isLand(x - step, y) &&
+        isLand(x, y + step) &&
+        isLand(x, y - step);
+      out.push({ x, y, big: interior });
+    }
+  }
+  return out;
+})();
