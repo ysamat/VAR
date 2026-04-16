@@ -1,6 +1,6 @@
 # VAR — Voyage Adaptive Reviews
-
 **Ask what matters. Ask it once. Make it feel like the end of the trip.**
+Link: [expedia-var.vercel.app](expedia-var.vercel.app)
 
 VAR is a working Next.js + Supabase + OpenAI prototype built for the **2026 Wharton AI & Analytics Hack-AI-Thon** (presented by Expedia). Instead of forcing travelers through a static post-trip review form, VAR turns the review into the closing beat of the trip: a cinematic JFK → destination → property flight, two AI-generated questions grounded in that property's *own* review history, and a one-click AI-synthesized review (title + body + per-category ratings) at the end.
 
@@ -172,8 +172,6 @@ Files that read these:
 | `NEXT_PUBLIC_MAPBOX_TOKEN`   | `components/DestinationMapExperience.tsx` |
 | `SUPABASE_URL` / `SUPABASE_SERVICE_KEY` | `lib/backend/supabase.ts`  |
 | `OPENAI_API_KEY`             | `lib/backend/openai.ts`         |
-
-> 🔒 **Never commit your `.env.local`.** The OpenAI and Supabase service keys grant full read/write access. GitHub will auto-disable any OpenAI key that appears in a public repo.
 
 ---
 
@@ -437,11 +435,7 @@ VAR's palette is codified as Tailwind `brand.*` tokens in **`tailwind.config.ts`
 
 ---
 
-## How VAR Maps to the Hackathon Brief
-
-Every substantive slide in the kickoff deck is addressed by a concrete subsystem. A full written mapping is in **`VAR_Hackathon_Report.pdf`** (at the repo root). Highlights:
-
-| Kickoff requirement                                    | VAR implementation                                              |
+| Requirement                                    | VAR implementation                                              |
 |--------------------------------------------------------|-----------------------------------------------------------------|
 | Identify missing / outdated property information       | Stage 1 coverage vector + half-life decay (`insights.ts`, `halflife.ts`) |
 | Generate 1–2 personalized, targeted questions          | Stage 2 gap + verification with deterministic type rotation (`questions.ts`) |
@@ -451,7 +445,6 @@ Every substantive slide in the kickoff deck is addressed by a concrete subsystem
 | Low-friction interaction                               | Exactly 2 questions per stop, one dropdown landing, no forms    |
 | "Complexity alone does not win"                        | 2 API routes, 1 DB, 1 model, flat architecture                  |
 
-### Judging rubric alignment
 
 | Criterion                  | VAR's answer                                                                 |
 |----------------------------|------------------------------------------------------------------------------|
@@ -461,42 +454,6 @@ Every substantive slide in the kickoff deck is addressed by a concrete subsystem
 | Opportunity & Impact       | Schema already production-shaped; swap-in ready                              |
 | Feasibility & Scalability  | 1 Postgres + 1 key + 1 Next.js app; stateless per request; cheap model       |
 | Presentation               | Entire flow fits a 3–4 min real-time demo with no cuts                       |
-
----
-
-## Contributing / Extending
-
-**Add a new property.** Append a row to `lib/propertyLocations.ts` keyed on the `eg_property_id` from Supabase, with city/lat/lng and the nearest airport (IATA + name + coordinates). The `/api/properties` inner-join lookup will pick it up automatically; it will appear in the dropdown on the next page load.
-
-**Tune the flight pacing.** Edit `SCENE_TIMINGS` and `CAMERA` in `lib/animation.ts`. Both outbound and return flights read from the same timing table. `GLOBE_TO_MAP_CROSSFADE_MS` controls the duration of both phase transitions.
-
-**Change the gap-detection prompt.** Edit the system prompt in `lib/backend/insights.ts`. Keep the response JSON schema — downstream stages depend on the field names.
-
-**Add a new verification type.** Extend the `VerificationType` union in `lib/backend/types.ts`, add a case to the rotation selector, and update `ReviewCard.tsx` to render the new input.
-
-**Swap the model.** Change the model name in `lib/backend/openai.ts` or pass it explicitly per call. All three stages use strict JSON mode, so any model that supports `response_format: { type: "json_object" }` will work.
-
----
-
-## Troubleshooting
-
-**Logo shows up with a white box around it.**
-The transparent PNG is getting flattened by Next's image optimizer. `TripSetupPanel.tsx` uses a plain `<img>` tag (not `next/image`) to serve `/logo.png` byte-for-byte, bypassing the optimizer. If you re-introduce `next/image` for this asset, the white matte will come back.
-
-**Mapbox shows a blank gray canvas.**
-`NEXT_PUBLIC_MAPBOX_TOKEN` is missing or invalid. Get a public token at <https://account.mapbox.com/access-tokens/> and add it to `.env.local`.
-
-**Dropdown is empty / says "Loading destinations…" forever.**
-Your Supabase service key or URL is wrong, or the network request to `/api/properties` is failing. Check the server logs in the terminal running `npm run dev`. The component falls back to `FALLBACK_PROPERTIES` from `lib/presets.ts` if the fetch fails, so if you see dummy entries, it's silently falling back.
-
-**OpenAI calls 401 / 429.**
-Key is invalid, rate-limited, or out of credits. All three AI stages share the same key from `OPENAI_API_KEY`. `gpt-4o-mini` is intentionally chosen for cost — each full trip (3 LLM calls per stop) costs fractions of a cent.
-
-**Globe shows a black void.**
-`react-globe.gl` loads Earth textures from `unpkg.com/three-globe`. If unpkg is rate-limiting you or you're offline, swap the URLs in `components/GlobeExperience.tsx` for locally-hosted textures in `public/`.
-
-**`npm run build` fails on the plain `<img>` tag.**
-There's an `eslint-disable-next-line @next/next/no-img-element` above the tag in `TripSetupPanel.tsx`. Don't remove it — it's there specifically to bypass the optimizer for the transparent logo.
 
 ---
 
