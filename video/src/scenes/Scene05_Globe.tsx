@@ -137,9 +137,9 @@ export function Scene05_Globe() {
         >
           <defs>
             <linearGradient id="arcGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor={theme.semantic.navyFillDeep} stopOpacity={0.15} />
-              <stop offset="50%" stopColor={theme.semantic.navyFillDeep} stopOpacity={1} />
-              <stop offset="100%" stopColor={theme.semantic.navyFillDeep} stopOpacity={0.4} />
+              <stop offset="0%" stopColor={theme.colors.yellow} stopOpacity={0.15} />
+              <stop offset="50%" stopColor={theme.colors.yellow} stopOpacity={1} />
+              <stop offset="100%" stopColor={theme.colors.yellow} stopOpacity={0.4} />
             </linearGradient>
           </defs>
 
@@ -148,7 +148,7 @@ export function Scene05_Globe() {
             cx={startX}
             cy={startY}
             r={10}
-            fill={theme.semantic.navyFillDeep}
+            fill={theme.colors.yellow}
             opacity={interpolate(frame, [80, 110], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
@@ -159,7 +159,7 @@ export function Scene05_Globe() {
             cy={startY}
             r={22}
             fill="none"
-            stroke={theme.semantic.navyFillDeep}
+            stroke={theme.colors.yellow}
             strokeWidth={2}
             opacity={interpolate(frame, [80, 110], [0, 0.45], {
               extrapolateLeft: "clamp",
@@ -183,7 +183,7 @@ export function Scene05_Globe() {
             cx={endX}
             cy={endY}
             r={10}
-            fill={theme.semantic.navyFillDeep}
+            fill={theme.colors.yellow}
             opacity={interpolate(frame, [260, 300], [0, 1], {
               extrapolateLeft: "clamp",
               extrapolateRight: "clamp",
@@ -193,11 +193,11 @@ export function Scene05_Globe() {
           {/* Plane */}
           {planeProgress > 0 && planeProgress < 1 && (
             <g transform={`translate(${px}, ${py})`}>
-              <circle r={14} fill={theme.semantic.navyFillDeep} />
+              <circle r={14} fill={theme.colors.yellow} />
               <circle
                 r={28}
                 fill="none"
-                stroke={theme.semantic.navyFillDeep}
+                stroke={theme.colors.yellow}
                 strokeWidth={2}
                 opacity={0.35}
               />
