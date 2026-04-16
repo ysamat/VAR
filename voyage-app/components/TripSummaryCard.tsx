@@ -138,7 +138,7 @@ export function TripSummaryCard({
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="fixed inset-0 z-40 flex items-center justify-center overflow-y-auto bg-brand-dark/92 p-5 pb-12 backdrop-blur-md"
+      className="fixed inset-0 z-40 flex items-start justify-center overflow-y-auto bg-brand-dark/92 p-5 pb-12 pt-6 backdrop-blur-md"
     >
       <div
         ref={storyRef}
