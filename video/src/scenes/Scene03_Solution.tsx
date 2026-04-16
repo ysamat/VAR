@@ -49,8 +49,8 @@ export function Scene03_Solution() {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          gap: 44,
-          padding: 120,
+          gap: 28,
+          padding: "80px 120px 140px",
           textAlign: "center",
         }}
       >
@@ -60,7 +60,7 @@ export function Scene03_Solution() {
             transform: `scale(${0.85 + logoPop * 0.15})`,
           }}
         >
-          <Brand size={760} showText={false} />
+          <Brand size={580} showText={false} />
         </div>
 
         <AnimatedText
@@ -84,7 +84,6 @@ export function Scene03_Solution() {
             fontSize: 48,
             fontWeight: 500,
             color: theme.semantic.textStrong,
-            marginTop: 40,
             maxWidth: 1400,
             lineHeight: 1.3,
           }}
@@ -101,7 +100,6 @@ export function Scene03_Solution() {
             color: theme.semantic.textMuted,
             maxWidth: 1200,
             lineHeight: 1.5,
-            marginTop: 16,
           }}
         >
           A cinematic reviewing experience that turns your thoughts into
