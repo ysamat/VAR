@@ -17,6 +17,17 @@ const EARTH_TEXTURE_URL =
 const BUMP_TEXTURE_URL =
   "https://unpkg.com/three-globe/example/img/earth-topology.png";
 
+function easeInOutCubic(t: number): number {
+  return t < 0.5 ? 4 * t * t * t : 1 - ((-2 * t + 2) ** 3) / 2;
+}
+
+function shortestLngTarget(fromLng: number, toLng: number): number {
+  let delta = toLng - fromLng;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+  return fromLng + delta;
+}
+
 type GlobeExperienceProps = {
   trip: Trip;
   /**
@@ -42,6 +53,10 @@ export function GlobeExperience({
   const [showReviewCard, setShowReviewCard] = useState(false);
   const [viewport, setViewport] = useState({ width: 1200, height: 800 });
   const [pointPulse, setPointPulse] = useState(0.62);
+  const originLat = trip.flight.origin.lat;
+  const originLng = trip.flight.origin.lng;
+  const destinationLat = trip.flight.destination.lat;
+  const destinationLng = trip.flight.destination.lng;
 
   useEffect(() => {
     const syncSize = () =>
@@ -58,7 +73,39 @@ export function GlobeExperience({
     if (!isGlobeReady) return;
 
     let cancelled = false;
-    const { origin, destination } = trip.flight;
+    let rafId: number | null = null;
+    const animateCamera = (
+      from: { lat: number; lng: number; altitude: number },
+      to: { lat: number; lng: number; altitude: number },
+      durationMs: number,
+    ) =>
+      new Promise<void>((resolve) => {
+        const targetLng = shortestLngTarget(from.lng, to.lng);
+        const start = performance.now();
+
+        const tick = (now: number) => {
+          if (cancelled) {
+            resolve();
+            return;
+          }
+          const t = Math.min(1, (now - start) / durationMs);
+          const eased = easeInOutCubic(t);
+          const lat = from.lat + (to.lat - from.lat) * eased;
+          const lng = from.lng + (targetLng - from.lng) * eased;
+          const altitude = from.altitude + (to.altitude - from.altitude) * eased;
+          globeRef.current?.pointOfView({ lat, lng, altitude }, 0);
+
+          if (t < 1) {
+            rafId = window.requestAnimationFrame(tick);
+          } else {
+            // Finalize on wrapped longitude to avoid end-frame snap across the antimeridian.
+            globeRef.current?.pointOfView({ ...to, lng: targetLng }, 0);
+            resolve();
+          }
+        };
+
+        rafId = window.requestAnimationFrame(tick);
+      });
 
     const runOutbound = async () => {
       globeRef.current?.pointOfView(CAMERA.initial, 0);
@@ -69,7 +116,7 @@ export function GlobeExperience({
 
       setPhase("departure");
       globeRef.current?.pointOfView(
-        { lat: origin.lat, lng: origin.lng, altitude: CAMERA.departure.altitude },
+        { lat: originLat, lng: originLng, altitude: CAMERA.departure.altitude },
         SCENE_TIMINGS.toDepartureMs,
       );
       await wait(SCENE_TIMINGS.toDepartureMs);
@@ -81,7 +128,7 @@ export function GlobeExperience({
       setShowArc(true);
       setPhase("flight");
       globeRef.current?.pointOfView(
-        { lat: destination.lat, lng: destination.lng, altitude: CAMERA.destination.altitude },
+        { lat: destinationLat, lng: destinationLng, altitude: CAMERA.destination.altitude },
         SCENE_TIMINGS.flightMs,
       );
       await wait(SCENE_TIMINGS.flightMs + 80);
@@ -90,8 +137,8 @@ export function GlobeExperience({
       setPhase("destination-emphasis");
       globeRef.current?.pointOfView(
         {
-          lat: destination.lat,
-          lng: destination.lng,
+          lat: destinationLat,
+          lng: destinationLng,
           altitude: CAMERA.destination.altitude * 0.94,
         },
         SCENE_TIMINGS.destinationEmphasisMs,
@@ -111,7 +158,7 @@ export function GlobeExperience({
     const runReturn = async () => {
       // Open already centered on destination — we crossfaded from the map.
       globeRef.current?.pointOfView(
-        { lat: destination.lat, lng: destination.lng, altitude: CAMERA.destination.altitude },
+        { lat: destinationLat, lng: destinationLng, altitude: CAMERA.destination.altitude },
         0,
       );
 
@@ -122,11 +169,11 @@ export function GlobeExperience({
       // Launch the return arc.
       setShowArc(true);
       setPhase("flight");
-      globeRef.current?.pointOfView(
-        { lat: origin.lat, lng: origin.lng, altitude: CAMERA.departure.altitude },
-        SCENE_TIMINGS.flightMs,
+      await animateCamera(
+        { lat: destinationLat, lng: destinationLng, altitude: CAMERA.destination.altitude },
+        { lat: originLat, lng: originLng, altitude: CAMERA.departure.altitude },
+        SCENE_TIMINGS.flightMs + 260,
       );
-      await wait(SCENE_TIMINGS.flightMs + 120);
       if (cancelled) return;
 
       // Brief hold on origin before handing back to the summary.
@@ -144,8 +191,19 @@ export function GlobeExperience({
 
     return () => {
       cancelled = true;
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
     };
-  }, [isGlobeReady, trip, mode, onReturnComplete]);
+  }, [
+    isGlobeReady,
+    mode,
+    onReturnComplete,
+    originLat,
+    originLng,
+    destinationLat,
+    destinationLng,
+  ]);
 
   useEffect(() => {
     if (!showStop) return;
