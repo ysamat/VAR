@@ -29,6 +29,7 @@ export function TripSetupPanel({ seedConfig: _seedConfig, onStart }: TripSetupPa
     FALLBACK_PROPERTIES[0]?.eg_property_id ?? ""
   );
   const [error, setError] = useState<string | null>(null);
+  const [usingOfflineList, setUsingOfflineList] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Fetch the real property list from the backend.
@@ -37,16 +38,36 @@ export function TripSetupPanel({ seedConfig: _seedConfig, onStart }: TripSetupPa
     (async () => {
       try {
         const res = await fetch("/api/properties");
-        if (!res.ok) throw new Error(`Failed to load properties (${res.status})`);
-        const json = await res.json();
+        const json = await res.json().catch(() => ({}));
         if (cancelled) return;
+
         const list: PropertySummary[] = json.properties ?? [];
         if (list.length > 0) {
           setProperties(list);
           setSelectedId(list[0].eg_property_id);
+          setUsingOfflineList(Boolean(json.offline));
+          if (json.offline && json.warning) {
+            setError(
+              "Could not load destinations from the database — showing offline list. Ratings and AI reviews may be limited."
+            );
+          } else {
+            setError(null);
+          }
+          return;
+        }
+
+        if (!res.ok) {
+          throw new Error(json.error ?? `Failed to load properties (${res.status})`);
         }
       } catch (err: any) {
-        if (!cancelled) setError(err.message ?? "Failed to load properties");
+        if (!cancelled) {
+          setUsingOfflineList(true);
+          setError(
+            err.message
+              ? `${err.message} — showing offline destination list.`
+              : "Failed to load properties — showing offline destination list."
+          );
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -168,6 +189,15 @@ export function TripSetupPanel({ seedConfig: _seedConfig, onStart }: TripSetupPa
               <path d="M5 7l5 5 5-5H5z" />
             </svg>
           </div>
+
+          {usingOfflineList && !loading && (
+            <p className="mt-3 rounded-lg border border-amber-600/30 bg-amber-50/80 px-3 py-2 text-xs text-amber-900">
+              Offline destination list — restore your Supabase project or check{" "}
+              <code className="text-[10px]">SUPABASE_URL</code> /{" "}
+              <code className="text-[10px]">SUPABASE_SERVICE_KEY</code> for live
+              ratings and reviews.
+            </p>
+          )}
 
           {selected && (
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-brand-navy/10 bg-brand-yellow-soft/60 px-4 py-3 text-xs text-brand-navy/80">

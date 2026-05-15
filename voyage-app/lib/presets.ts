@@ -1,9 +1,6 @@
 import { tripConfigSchema, type TripConfig } from "@/lib/tripSchema";
-import {
-  ORIGIN_AIRPORT,
-  PROPERTY_LOCATIONS,
-  type Airport,
-} from "@/lib/propertyLocations";
+import { ORIGIN_AIRPORT, type Airport } from "@/lib/propertyLocations";
+import { getOfflinePropertySummaries } from "@/lib/propertySummary";
 
 /**
  * A property summary the UI (dropdown) and the trip builder both consume.
@@ -130,21 +127,9 @@ export function buildTripFromProperty(property: PropertySummary): TripConfig {
 
 /**
  * Static fallback list — used when /api/properties fails (e.g. offline) so
- * the setup panel still renders something. Built from the in-code lookup.
+ * the setup panel still renders recognizable destination names.
  */
-export const FALLBACK_PROPERTIES: PropertySummary[] = Object.values(
-  PROPERTY_LOCATIONS
-).map((loc) => ({
-  eg_property_id: loc.eg_property_id,
-  city: null,
-  province: null,
-  country: null,
-  star_rating: null,
-  guestrating_avg_expedia: null,
-  lat: loc.lat,
-  lng: loc.lng,
-  airport: loc.airport,
-}));
+export const FALLBACK_PROPERTIES: PropertySummary[] = getOfflinePropertySummaries();
 
 /** A safe default trip — first fallback property. Used until real data loads. */
 export const DEFAULT_DEMO_TRIP_CONFIG: TripConfig = buildTripFromProperty(
